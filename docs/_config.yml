@@ -1,0 +1,18 @@
+# Site settings
+title: Stories
+email: hufman@gmail.com
+description: "Stories about my nerd projects"
+baseurl: "/stories"
+url: "https://hufman.github.io"
+github_username:  hufman
+
+# Build settings
+markdown: kramdown
+permalink: :basename
+
+
+plugins:
+  - jekyll-redirect-from
+
+kramdown:
+  smart_quotes: ["apos", "apos", "quot", "quot"]
