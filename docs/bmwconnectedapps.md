@@ -198,6 +198,23 @@ Car App Implementation
 
 This strategy made implementation relatively easy: I just needed to build a client to this MediaBrowserService, and whenever any metadata callbacks happen, update the car's labels with the appropriate information. Button callbacks from the car could run commands against the music app.
 
-And then after months of polish, I have a music app with full browse and search support, which can control any MediaBrowserService music app:
+And then after months of polish, I have a [music app](https://github.com/hufman/AndroidAutoIdrive) with full browse and search support, which can control any MediaBrowserService music app:
 
 {% include image.html src="images/bmwconnectedapps/musicapp.jpg" title="Music App" %}
+
+Security Analysis
+-----------------
+
+Is this another instance of terrible car security, letting random attackers explode your car from the other side of the world? Not at all! This is entirely separate from the [Connected Drive protocol](https://github.com/edent/BMW-i-Remote/blob/master/README.md#description), which _can_ be used to hack your car from the other side of the world. This Connected Apps protocol only functions over a local connection from your phone to the (running) car over USB or Bluetooth. There are a number of other security restrictions in place, to reduce the chance for mischief:
+
+1. A phone app has to log in with a cert signed by BMW. However, these certs are easily accessible, just by extracting any existing app. In fact, official companion apps (such as Spotify) host a ContentProvider for the official app to fetch the app-specific certs and log into the car on their behalf. This ContentProvider provides read access to the cert for any app on the phone.
+
+2. This authentication cert has a whitelist of permissions: What brand(s) of car it can authenticate in, what features it unlocks, what sections of the Car Data Service it can access, whether app creation is available or not and with what assets. However, perhaps for ease of development, the official certs are pretty much wide open, only locking down the assets to some nicely generic layouts.
+
+3. The car exchanges a login nonce for the client app to sign. In 2018, BMW did remove the exported service which allowed any app to ask for the answer to this challenge. While they can't remove it from the Connected Classic app, because the Play Store won't let them update it without updating the targeted Android API level, most users will be safe, running the new Connected app. However, unscrupulous attackers could just include the JNI library to generate their own challenge responses.
+
+4. The apps are sandboxed. The apps can only access information from the (read-only) [Car Data Service](https://hufman.github.io/BMWConnectedAnalysis/cds/), they don't get direct canbus access. New app layouts are hidden behind an app's entry button in the menu, and any global state is only modified through specific functions: Set the music metadata, trigger navigation, start a phone call, and not much else.
+
+5. The protocol is deprecated and going away. BMW's new [Live Cockpit](https://www.pocket-lint.com/cars/news/bmw/146565-bmw-live-cockpit-bmw-operating-system-7-0-infotainment) system does not support any of this remote app protocol, instead finally adding Android Auto support to their existing Apple Carplay support. There will be some apps baked into the car, but apps from the phone won't be able to integrate in the same way.
+
+To further reduce mischief, BMW should use their sandboxing experience and start a developer program like GM has done, for users to express their creativity and build their own apps to contribute to an app store. This entire reverse engineering project started because I wanted to add new functionality to my car, using the marvelous technology that BMW provided. The entire car modding scene shows the devotion people have for tinkering with their cars, and with cars being increasingly software-driven, this is simply the next phase of that same idea.
