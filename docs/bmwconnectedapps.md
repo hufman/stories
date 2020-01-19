@@ -42,7 +42,7 @@ BCL Multiplexing
 
 I started noticing a pattern in the first bytes of most packets: The 0th byte was 0, the 1st byte was 1 or 6, the 2nd byte was 0, the 3rd byte was usually very low, and the next bytes were almost always `0x0FA4`. I figured out that the next 2 bytes were the length of the remaining data, and the next 4 bytes of data were almost always `0xDEADBEEF`.
 
-I [began writing](https://github.com/hufman/wireshark_bmw_bcl/commit/d5dc9a8ebcb206a84b21571c8ab4df8982ebc6b6) a Wireshark LUA plugin to help me understand the data, parsing the first bytes as 4 16-bit values named Val1, Val2, Val3, and Length, and then outputting the remaining bytes of data.
+I [began writing](https://github.com/hufman/wireshark_bmw_bcl/commit/d5dc9a8ebcb206a84b21571c8ab4df8982ebc6b6) a Wireshark Lua plugin to help me understand the data, parsing the first bytes as 4 16-bit values named Val1, Val2, Val3, and Length, and then outputting the remaining bytes of data.
 
 It seems that this protocol is used to multiplex connections into a single Bluetooth serial socket, with Val2 being different connection IDs. With this field being parsed out in Wireshark, I could use display filters to follow an individual communication flow.
 
@@ -58,7 +58,7 @@ Except, of course, that Apache Etch compiles each function name, and any other s
 
 But, where to get the names?
 
-Turns out JVM bytecode (which Android apps are written in) is very easy to decompile. Variable names are obfuscated a bit, but the Etch generated classes contain an exact list of all the available Etch symbols:
+Turns out JVM bytecode (which Android apps are equivalently written in) is very easy to decompile. Variable names are obfuscated a bit, but the Etch generated classes contain an exact list of all the available Etch symbols:
 
 ```
 ValueFactoryBMWRemoting.java:
